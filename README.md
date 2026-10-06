@@ -44,3 +44,9 @@ curl -I --max-time 5 http://<IP_MAY_CHU>:8080/
 ```
 
 Đầu ra mong đợi của `ufw status verbose` là trạng thái active và các luật `22/tcp ALLOW IN` cùng `8080/tcp ALLOW IN`. Kết quả của `ss` phụ thuộc vào tiến trình thực tế đang chạy trên máy chủ; `curl` thành công khi ứng dụng HTTP hoạt động.
+
+## Kết quả kiểm tra trên VPS
+
+UFW đã active với mặc định `deny (incoming)` và `allow (outgoing)`. Máy chủ có sẵn luật SSH `22/tcp` và HTTP `80/tcp`; luật 80 được giữ nguyên để không làm gián đoạn Nginx có sẵn. Đã thêm `8080/tcp ALLOW IN` cho IPv4 và IPv6.
+
+Ban đầu `ss -tlnp` chỉ hiển thị SSH và Nginx, không có listener trên 8080. Khi chạy một HTTP server tạm thời, `ss` xác nhận listener `0.0.0.0:8080` và `curl -I http://127.0.0.1:8080/` trả về `HTTP/1.0 200 OK`; server kiểm tra đã được dừng sau đó. Request từ máy cá nhân tới địa chỉ công khai `:8080` timeout, nên cần kiểm tra inbound rule 8080 ở Cloud Firewall/NSG của nhà cung cấp để xác nhận đường truy cập ngoài Internet.
